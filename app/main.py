@@ -2,7 +2,6 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.core.database import db_helper
 from app.core.exceptions import register_exception_handlers
 from app.core.middlewares import LogCorrelationIdMiddleware
 from app.core.structlog import configure as logging_configure
@@ -30,8 +29,6 @@ main_app.add_middleware(
 register_exception_handlers(main_app)
 
 main_app.include_router(api_router)
-
-main_app.state.db_session_factory = db_helper.session_factory
 
 if __name__ == "__main__":
     uvicorn.run(
