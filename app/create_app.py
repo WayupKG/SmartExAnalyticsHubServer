@@ -5,7 +5,7 @@ import structlog
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
-from app.database.config import db_helper
+from app.core.database import db_helper
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -92,7 +92,7 @@ class FastAPIApp:
                         responses.setdefault(
                             code,
                             {
-                                "description": f"{'Validation' if code == '400' else 'Server'} error",
+                                "description": f"{'Validation' if code == '400' else 'Server'} error",  # noqa: E501
                                 "content": {
                                     "application/json": {"schema": error_response_ref}
                                 },
