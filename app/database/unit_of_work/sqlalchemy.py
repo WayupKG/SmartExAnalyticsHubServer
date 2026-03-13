@@ -10,9 +10,6 @@ class SQLAlchemyUnitOfWork(AbstractUnitOfWork):
     def __init__(self, session: AsyncSession) -> None:
         self.session: AsyncSession = session
 
-    async def __aenter__(self) -> SQLAlchemyUnitOfWork:
-        return self
-
     async def commit(self) -> None:
         await self.session.commit()
 
@@ -21,3 +18,6 @@ class SQLAlchemyUnitOfWork(AbstractUnitOfWork):
 
     async def flush(self) -> None:
         await self.session.flush()
+
+    async def close(self) -> None:
+        await self.session.close()
