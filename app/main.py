@@ -2,11 +2,11 @@ import uvicorn
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import settings
-from app.core.exceptions.handlers import register_exception_handlers
+from app.core.exceptions import register_exception_handlers
 from app.core.middlewares import LogCorrelationIdMiddleware
 from app.core.structlog import configure as logging_configure
 from app.create_app import FastAPIApp
-from app.presentation import router
+from app.routers import api_router
 
 logging_configure()
 
@@ -16,8 +16,6 @@ main_app = fastapi_app.create(
     title="SmartEx Analytics Hub API",
     description="Backend server for SmartEx Analytics Hub",
 )
-
-fastapi_app.setup_custom_openapi(main_app)
 
 main_app.add_middleware(LogCorrelationIdMiddleware)
 main_app.add_middleware(
@@ -30,7 +28,7 @@ main_app.add_middleware(
 
 register_exception_handlers(main_app)
 
-main_app.include_router(router)
+main_app.include_router(api_router)
 
 if __name__ == "__main__":
     uvicorn.run(

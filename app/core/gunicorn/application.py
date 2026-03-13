@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from fastapi import FastAPI
 
 
-class Application(BaseApplication):
+class Application(BaseApplication):  # type: ignore[misc]
     def __init__(
         self,
         application: FastAPI,
@@ -24,11 +24,8 @@ class Application(BaseApplication):
         self,
     ) -> dict[str, Any | int | str | list[str] | tuple[str]]:
         return {
-            # pair
             k: v
-            # for each option
             for k, v in self.options.items()
-            # not empty key / value
             if k in self.cfg.settings and v is not None
         }
 

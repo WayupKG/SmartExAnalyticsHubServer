@@ -6,7 +6,7 @@ from gunicorn.glogging import Logger
 from app.core.config import settings
 
 
-class GunicornLogger(Logger):
+class GunicornLogger(Logger):  # type: ignore[misc]
     def setup(self, cfg: Any) -> None:
         super().setup(cfg)
 

@@ -18,10 +18,9 @@ logger: Logger = structlog.get_logger(__name__)
 class FastAPIApp:
     @staticmethod
     @asynccontextmanager
-    async def lifespan(_: FastAPI) -> AsyncGenerator[None, Any]:
-        # Логика инициализации при старте
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
+        app.state.db_session_factory = db_helper.session_factory
         yield
-        # Очистка ресурсов при выключении
         await db_helper.dispose()
 
     def create(
@@ -34,7 +33,7 @@ class FastAPIApp:
             title=title,
             description=description,
             lifespan=self.lifespan,
-            docs_url=custom_docs_url if custom_docs_url else "/docs/",
+            docs_url=custom_docs_url if custom_docs_url else "/docs",
             redoc_url=None,
             version="0.1.0",
             openapi_url="/api/v1/openapi.json",
@@ -44,8 +43,8 @@ class FastAPIApp:
         return app
 
     @staticmethod
-    def setup_custom_openapi(app: FastAPI):
-        def custom_openapi():
+    def setup_custom_openapi(app: FastAPI) -> None:
+        def custom_openapi() -> dict[str, Any]:
             if app.openapi_schema:
                 return app.openapi_schema
 
@@ -70,13 +69,12 @@ class FastAPIApp:
             schemas["ErrorResponse"] = {
                 "type": "object",
                 "properties": {
-                    "exception_type": {"type": "string"},
                     "errors": {
                         "type": "array",
                         "items": {"$ref": "#/components/schemas/ErrorDetail"},
                     },
                 },
-                "required": ["exception_type", "errors"],
+                "required": ["errors"],  # Убрали обязательность exception_type
             }
 
             error_response_ref = {"$ref": "#/components/schemas/ErrorResponse"}
@@ -86,13 +84,15 @@ class FastAPIApp:
                     if not isinstance(operation, dict):
                         continue
                     responses = operation.setdefault("responses", {})
+
+                    # Очищаем стандартные 422, чтобы не путать фронтенд
                     responses.pop("422", None)
 
-                    for code in ["400", "500"]:
+                    for code in ["400", "422", "500"]:
                         responses.setdefault(
                             code,
                             {
-                                "description": f"{'Validation' if code == '400' else 'Server'} error",  # noqa: E501
+                                "description": "Error Response",
                                 "content": {
                                     "application/json": {"schema": error_response_ref}
                                 },
@@ -102,4 +102,4 @@ class FastAPIApp:
             app.openapi_schema = schema
             return app.openapi_schema
 
-        app.openapi = custom_openapi
+        app.openapi = custom_openapi  # type: ignore[method-assign]
