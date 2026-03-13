@@ -78,7 +78,11 @@ async def setup_dependencies(
         yield db_session
 
     main_app.dependency_overrides[db_helper.session_getter] = _get_test_session
-    main_app.state.db_session_factory = test_db_helper.session_factory
+
+    def _test_session_factory() -> AsyncSession:
+        return db_session
+
+    main_app.state.db_session_factory = _test_session_factory
 
     yield
 
