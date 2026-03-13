@@ -1,11 +1,13 @@
 import os
-from typing import TYPE_CHECKING
+from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
+import pytest
 import pytest_asyncio
+from _pytest.reports import TestReport
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
-from sqlalchemy.orm import Session, SessionTransaction
 from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
@@ -15,6 +17,8 @@ from app.shared.infrastructure.orm_base import Base
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
+
+    from sqlalchemy.orm import Session, SessionTransaction
 
 
 def get_test_db_url() -> str:
@@ -135,3 +139,32 @@ async def client() -> AsyncGenerator[AsyncClient]:
         headers={"Content-Type": "application/json"},
     ) as ac:
         yield ac
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_html_results_table_header(cells: list[str]) -> None:
+    """Добавляет заголовок времени в таблицу отчета."""
+    cells.insert(2, "<th>Time</th>")
+
+
+@pytest.hookimpl(optionalhook=True)
+def pytest_html_results_table_row(report: TestReport, cells: list[Any]) -> None:
+    """Добавляет значение времени в строку таблицы отчета."""
+    cells.insert(2, f"<td>{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</td>")
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item: pytest.Item, call: pytest.CallInfo[None]) -> Any:
+    """
+    Добавляет логи или дополнительную информацию в HTML отчет при падении теста.
+    """
+    outcome = yield
+    report = outcome.get_result()
+    extra = getattr(report, "extra", [])
+
+    if report.when == "call" and report.failed:
+        pytest_html = item.config.pluginmanager.getplugin("html")
+        if pytest_html:
+            extra.append(pytest_html.extras.url("http://localhost:8000/docs"))
+
+    report.extra = extra
