@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:
+  smartex_api:
+    container_name: smartex_api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/project
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      smartex_db:
+        condition: service_healthy
+      smartex_redis:
+        condition: service_healthy
+    networks:
+      - smartex_net
+
+  smartex_db:
+    container_name: smartex_db
+    image: postgres:18-alpine
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${APP_CONFIG__DB__USER}
+      - POSTGRES_PASSWORD=${APP_CONFIG__DB__PASSWORD}
+      - POSTGRES_DB=${APP_CONFIG__DB__NAME}
+    volumes:
+      - smartex_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${APP_CONFIG__DB__USER} -d $${APP_CONFIG__DB__NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1G # Лимит памяти для аналитической БД
+    networks:
+      - smartex_net
+
+  smartex_redis:
+    image: redis:7.4-alpine
+    container_name: smartex_redis
+    restart: unless-stopped
+    volumes:
+        - smartex_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    networks:
+      - smartex_net
+
+volumes:
+  smartex_db_data:
+  smartex_redis_data:
+
+networks:
+  smartex_net:
+    driver: bridge
