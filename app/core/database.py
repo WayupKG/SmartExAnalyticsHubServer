@@ -31,20 +31,20 @@ class DatabaseHelper:
         url: str,
         params: HelperParams,
     ) -> None:
-        kwargs_engine: dict[str, bool | int | type[Pool]] = {
+        engine_kwargs: dict[str, bool | int | type[Pool]] = {
             "echo": params.echo,
             "echo_pool": params.echo_pool,
-            "pool_size": params.pool_size,
-            "max_overflow": params.max_overflow,
         }
 
-        if params.poolclass is not None:
-            kwargs_engine["poolclass"] = params.poolclass
+        if params.poolclass:
+            engine_kwargs["poolclass"] = params.poolclass
+        else:
+            engine_kwargs.update(
+                pool_size=params.pool_size,
+                max_overflow=params.max_overflow,
+            )
 
-        self.engine: AsyncEngine = create_async_engine(
-            url,
-            **kwargs_engine,
-        )
+        self.engine: AsyncEngine = create_async_engine(url, **engine_kwargs)
 
         self.session_factory: async_sessionmaker[AsyncSession] = async_sessionmaker(
             bind=self.engine,
