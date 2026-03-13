@@ -20,12 +20,8 @@ class RegisterUserUseCase:
                 raise EmailAlreadyExistsError("Email уже занят")
 
             user = User(email=email, hashed_password=password + "_hash")
-
-            # 2. Сохраняем
             await self.uow.users.save(user)
 
-            # 3. Подтверждаем транзакцию.
-            # Если тут вылетит ошибка, __aexit__ автоматически сделает rollback!
             await self.uow.commit()
 
             return user
