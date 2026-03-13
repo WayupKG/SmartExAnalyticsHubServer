@@ -107,11 +107,8 @@ async def db_session(
         """
         Исправленная версия слушателя с проверкой на None для MyPy.
         """
-        # Если транзакция вложенная, проверяем наличие и активность родителя
         if transaction.nested:
-            parent = (
-                transaction.parent
-            )  # в SQLAlchemy 2.0 используется .parent вместо ._parent
+            parent = transaction.parent
             if parent is not None and not parent.is_active:
                 return
 
