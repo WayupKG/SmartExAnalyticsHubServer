@@ -5,8 +5,6 @@ import structlog
 from fastapi import FastAPI
 from fastapi.openapi.utils import get_openapi
 
-from app.core.database import db_helper
-
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
@@ -19,9 +17,7 @@ class FastAPIApp:
     @staticmethod
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncGenerator[None, Any]:
-        app.state.db_session_factory = db_helper.session_factory
         yield
-        await db_helper.dispose()
 
     def create(
         self,
