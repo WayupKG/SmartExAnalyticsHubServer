@@ -11,18 +11,16 @@ from app.users.presentation.schemas import UserRegisterRequest, UserResponse
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post(
-    "/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED
-)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 async def register(
     request: UserRegisterRequest,
     use_case: Annotated[
         RegisterUserUseCase,
         Depends(get_register_user_use_case),
     ],
-) -> UserResponse | BaseCustomException:
+) -> UserResponse:
     try:
         user = await use_case.execute(email=request.email, password=request.password)
         return UserResponse(id=user.id, email=user.email, is_active=user.is_active)
     except EmailAlreadyExistsError as e:
-        return BaseCustomException(detail=str(e))
+        raise BaseCustomException(detail=str(e)) from e
