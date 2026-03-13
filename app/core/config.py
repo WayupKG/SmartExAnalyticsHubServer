@@ -105,7 +105,10 @@ class Settings(BaseSettings):
     allow_origins: list[str]
 
     logging: LoggingConfig
+
     db: DatabaseConfig
+    db_test: DatabaseConfig
+
     redis: RedisConfig
 
     jwt: JWTConfig = JWTConfig()

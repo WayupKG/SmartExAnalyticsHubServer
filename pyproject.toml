@@ -16,27 +16,29 @@ dependencies = [
   "pyjwt[crypto]>=2.12.0,<3",
   "aiofiles>=25.1.0,<26",
   "bcrypt>=5.0.0,<6",
-  "orjson>=3.11.7,<4",
-  "python-socketio>=5.16.1,<6",
   "structlog>=25.5.0",
-  "pre-commit>=4.5.1",
+  "httpx>=0.28.1",
 ]
 
 [dependency-groups]
 dev = [
+    "pre-commit>=4.5.1",
     "mypy>=1.19.1",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
     "pytest-html>=4.2.0",
     "ruff>=0.15.6",
+    "pytest-xdist>=3.8.0",
 ]
 
 [tool.uv]
 package = false
 
 [tool.pytest.ini_options]
+addopts = "-v -n auto --dist loadscope"
 pythonpath = ["."]
 testpaths = ["tests"]
+python_files = ["test_*.py"]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
