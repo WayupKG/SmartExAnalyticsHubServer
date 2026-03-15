@@ -3,12 +3,12 @@ import uuid
 from pydantic import BaseModel, EmailStr
 
 
-class UserRegisterRequest(BaseModel):
+class UserCreateSchema(BaseModel):
     email: EmailStr
     password: str
 
 
-class UserResponse(BaseModel):
+class UserReadSchema(BaseModel):
     id: uuid.UUID
     email: EmailStr
     is_active: bool
