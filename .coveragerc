@@ -1,0 +1,44 @@
+[run]
+branch = True
+source = app
+
+omit =
+    */migrations/*
+    */tests/*
+    */__init__.py
+    */settings/*
+    */config/*
+    */gunicorn/*
+    */main.py
+    */asgi.py
+    */wsgi.py
+    */run_main.py
+    */create_app.py
+
+    # infra boilerplate
+    */infrastructure/orm_models/*
+    */infrastructure/db/*
+    */infrastructure/session/*
+    */infrastructure/mappers/*
+    */infrastructure/adapters/http/*
+
+    # framework glue
+    */presentation/*
+    */api/*
+    */routers/*
+    */controllers/*
+    */schemas/*
+    */dto/*
+
+[report]
+fail_under = 85
+show_missing = True
+skip_covered = True
+precision = 2
+
+exclude_lines =
+    pragma: no cover
+    if TYPE_CHECKING:
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
