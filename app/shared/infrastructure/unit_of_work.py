@@ -12,19 +12,30 @@ class SQLAlchemyUnitOfWork(IUnitOfWork):
     Реализация UnitOfWork для SQLAlchemy.
     """
 
-    def __init__(self, session_factory: async_sessionmaker[AsyncSession]):
+    def __init__(
+        self,
+        session_factory: async_sessionmaker[AsyncSession] | None = None,
+        session_override: AsyncSession | None = None,
+    ):
         self.session_factory = session_factory
+        self.session_override = session_override
         self.session: AsyncSession | None = None
 
     async def __aenter__(self) -> SQLAlchemyUnitOfWork:
-        self.session = self.session_factory()
+        if self.session_override:
+            self.session = self.session_override
+        elif self.session_factory:
+            self.session = self.session_factory()
+        else:
+            raise ValueError("Не передан ни session_factory, ни session_override")
+
         self.users = UserRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
-        if self.session:
+        if self.session and not self.session_override:
             if exc_type:
-                await self.rollback()
+                await self.session.rollback()
             await self.session.close()
 
     async def commit(self) -> None:
