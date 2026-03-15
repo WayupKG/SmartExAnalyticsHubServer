@@ -1,6 +1,8 @@
 import uuid
 from dataclasses import dataclass, field
 
+from pydantic import EmailStr, TypeAdapter, ValidationError
+
 
 @dataclass
 class User:
@@ -14,3 +16,9 @@ class User:
 
     def activate(self) -> None:
         self.is_active = True
+
+    def __post_init__(self) -> None:
+        try:
+            TypeAdapter(EmailStr).validate_python(self.email)
+        except ValidationError as e:
+            raise e
