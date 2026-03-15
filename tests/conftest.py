@@ -7,7 +7,7 @@ import pytest_asyncio
 from _pytest.reports import TestReport
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
-from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, async_sessionmaker
 from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
@@ -132,13 +132,22 @@ async def db_session(
 
 @pytest_asyncio.fixture
 async def real_uow(
-    db_session: AsyncSession,
+    connection: AsyncConnection,
 ) -> AsyncGenerator[SQLAlchemyUnitOfWork]:
     """
-    Реальный UnitOfWork с сессией SQLAlchemy, использующий db_session.
-    Гарантирует commit/rollback через savepoint в рамках фикстуры db_session.
+    Создаёт реальный UnitOfWork для тестов, используя новый savepoint
+    на существующем соединении.
     """
-    async with SQLAlchemyUnitOfWork(session_override=db_session) as uow:
+    session_factory = async_sessionmaker(
+        bind=connection,
+        expire_on_commit=False,
+        class_=AsyncSession,
+        future=True,
+        autoflush=True,
+        autocommit=False,
+    )
+
+    async with SQLAlchemyUnitOfWork(session_factory) as uow:
         yield uow
 
 
