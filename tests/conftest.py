@@ -163,6 +163,11 @@ async def client() -> AsyncGenerator[AsyncClient]:
         yield ac
 
 
+@pytest.fixture(scope="session")
+def faker_locale() -> str:
+    return "ru_RU"
+
+
 @pytest.hookimpl(optionalhook=True)
 def pytest_html_results_table_header(cells: list[str]) -> None:
     """Добавляет заголовок времени в таблицу отчета."""
