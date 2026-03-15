@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
-from app.core.security import hash_password
+from app.shared.infrastructure.security import hash_password
 from app.users.domain.entities import User
 from app.users.domain.exceptions import EmailAlreadyExistsError
 

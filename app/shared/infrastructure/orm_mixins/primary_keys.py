@@ -2,7 +2,7 @@ import uuid
 
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 
-from app.utils import CustomID
+from app.shared.infrastructure.utils.id_generator import CustomID
 
 
 class BaseIDMixin:
