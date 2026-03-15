@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+from app.core.security import hash_password
 from app.users.domain.entities import User
 from app.users.domain.exceptions import EmailAlreadyExistsError
 
@@ -14,14 +15,15 @@ class RegisterUserUseCase:
 
     async def execute(self, email: str, password: str) -> User:
         async with self.uow:
-            # 1. Проверяем через репозиторий, привязанный к UoW
             existing_user = await self.uow.users.get_by_email(email)
             if existing_user:
-                raise EmailAlreadyExistsError("Email уже занят")
+                raise EmailAlreadyExistsError()
 
-            user = User(email=email, hashed_password=password + "_hash")
+            user = User(
+                email=email,
+                hashed_password=hash_password(password),
+            )
             await self.uow.users.save(user)
-
             await self.uow.commit()
 
             return user
