@@ -14,6 +14,7 @@ from app.core.config import settings
 from app.core.database import DatabaseHelper, HelperParams, db_helper
 from app.main import main_app
 from app.shared.infrastructure.orm_base import Base
+from app.shared.infrastructure.unit_of_work import SQLAlchemyUnitOfWork
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -127,6 +128,18 @@ async def db_session(
     yield session
 
     await session.close()
+
+
+@pytest_asyncio.fixture
+async def real_uow(
+    db_session: AsyncSession,
+) -> AsyncGenerator[SQLAlchemyUnitOfWork]:
+    """
+    Реальный UnitOfWork с сессией SQLAlchemy, использующий db_session.
+    Гарантирует commit/rollback через savepoint в рамках фикстуры db_session.
+    """
+    async with SQLAlchemyUnitOfWork(session_override=db_session) as uow:
+        yield uow
 
 
 @pytest_asyncio.fixture(scope="function")
