@@ -31,6 +31,7 @@ dev = [
     "ruff>=0.15.6",
     "pytest-faker>=2.0.0",
     "pytest-cov>=7.0.0",
+    "factory-boy>=3.3.3",
 ]
 
 [tool.uv]
@@ -51,6 +52,10 @@ plugins = ["pydantic.mypy"]
 ignore_missing_imports = true
 explicit_package_bases = true
 mypy_path = "."
+
+[tool.mypy.overrides]
+module = "factory.*"
+ignore_missing_imports = true
 
 [tool.pydantic-mypy]
 init_forbid_extra = true
