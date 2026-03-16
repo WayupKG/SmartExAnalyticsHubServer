@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any
 
 import pytest
 import pytest_asyncio
-from _pytest.reports import TestReport
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncSession, async_sessionmaker
@@ -19,6 +18,7 @@ from app.shared.infrastructure.unit_of_work import SQLAlchemyUnitOfWork
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
 
+    from _pytest.reports import TestReport
     from sqlalchemy.orm import Session, SessionTransaction
 
 
