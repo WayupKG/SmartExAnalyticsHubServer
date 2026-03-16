@@ -1,24 +1,19 @@
-from fastapi import status
-
 from app.shared.domain.exceptions import BaseCustomException
 
 
-class UserDomainError(BaseCustomException):
-    """Базовый класс для всех ошибок модуля пользователей."""
-
-    pass
-
-
-class EmailAlreadyExistsError(UserDomainError):
-    status_code = status.HTTP_409_CONFLICT
+class EmailAlreadyExistsError(BaseCustomException):
+    status_code = 409
+    error_code = "EmailAlreadyExistsError"
     detail = "Пользователь с таким email уже зарегистрирован."
 
 
-class UserNotFoundError(UserDomainError):
-    status_code = status.HTTP_404_NOT_FOUND
+class UserNotFoundError(BaseCustomException):
+    status_code = 404
+    error_code = "UserNotFoundError"
     detail = "Пользователь не найден."
 
 
-class InvalidCredentialsError(UserDomainError):
-    status_code = status.HTTP_401_UNAUTHORIZED
+class InvalidCredentialsError(BaseCustomException):
+    status_code = 401
+    error_code = "InvalidCredentialsError"
     detail = "Неверный email или пароль."
