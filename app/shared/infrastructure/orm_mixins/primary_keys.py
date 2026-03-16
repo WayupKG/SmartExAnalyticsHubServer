@@ -6,7 +6,11 @@ from app.shared.infrastructure.utils.id_generator import CustomID
 
 
 class BaseIDMixin:
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        autoincrement=True,
+        index=True,
+    )
 
 
 class UUIDMixin:

@@ -1,4 +1,4 @@
-__all__ = ["Base", "UserORM"]
+__all__ = ["Base", "UserModel"]
 
 from app.shared.infrastructure.orm_base import Base
-from app.users.infrastructure.orm_models import UserORM
+from app.users.infrastructure.orm_models import UserModel

@@ -1,15 +1,22 @@
-import uuid
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from pydantic import EmailStr, TypeAdapter, ValidationError
 
+from app.users.domain.enums import UserRole
+
 
 @dataclass
-class User:
+class UserEntity:
+    first_name: str
+    last_name: str
     email: str
     hashed_password: str
-    id: uuid.UUID = field(default_factory=uuid.uuid4)
+    id: int = field(default_factory=lambda: 1)
+    role: UserRole = UserRole.MARKETER
     is_active: bool = True
+    created_at: datetime = field(default_factory=datetime.now)
+    updated_at: datetime | None = None
 
     def ban(self) -> None:
         self.is_active = False

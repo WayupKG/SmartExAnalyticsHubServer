@@ -17,5 +17,5 @@ async def register(
         Depends(get_register_user_use_case),
     ],
 ) -> UserReadSchema:
-    user = await use_case.execute(email=request.email, password=request.password)
-    return UserReadSchema(id=user.id, email=user.email, is_active=user.is_active)
+    user = await use_case.execute(user_in=request)
+    return UserReadSchema.model_validate(user)
